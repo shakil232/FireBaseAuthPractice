@@ -1,16 +1,51 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import NavBar from '../Share/NavBar/NavBar';
 import { Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub, faGooglePlus, faFacebook } from '@fortawesome/free-brands-svg-icons'
+import { initializeApp } from "firebase/app";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import firebaseConfig from './firebase.config';
+import { userContext } from '../../App';
+
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
 const Login = () => {
+    const [user, setUser ] = useContext(userContext);
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
 
+    const handelGoogleSignIn = () => {
+        signInWithPopup(auth, googleProvider)
+            .then((res) => {
+                const {displayName, email, photoURL} = res.user;
+                const signInUser = {
+                    isSignedIn: true,
+                    name: displayName,
+                    email: email,
+                    photoUrl: photoURL
+                }
+                setUser(signInUser);
+            })
+            .catch((error) => {
+                const errorMessage = error.message;
+                console.log(errorMessage)
+            });
+    }
 
     return (
         <section className=' mb-5 pb-5'>
             <NavBar />
+
+            <div className="text-center text-info mt-5">
+                <h2>Name: {user.name}</h2>
+                <p>Email: {user.email}</p>
+                <img className="w-25 h-25"  src={user.photoUrl} alt=""/>
+            </div>
+
             <div className="row mt-5">
                 <div className="col-md-5 m-auto">
                     <div className=" p-3 border shadow-lg rounded-3">
@@ -45,8 +80,8 @@ const Login = () => {
                 </div>
             </div>
             {/* <div className="row mt-5">
-                <div className="col-md-6 m-auto">
-                    <div className=" p-5 border shadow-lg">
+                <div className="col-md-5 m-auto">
+                    <div className=" p-3 border shadow-lg rounded-3">
                         <h2 className="text-info text-center">Login</h2>
                         <Form>
                             <Form.Group controlId="exampleForm.ControlInput1">
@@ -87,8 +122,10 @@ const Login = () => {
                 </div>
 
                 <div className="mt-3  d-flex justify-content-center align-content-center m-auto">
-                    <FontAwesomeIcon className="btn text-warning fs-3" icon={faGooglePlus} />
+                    <FontAwesomeIcon onClick={handelGoogleSignIn} className="btn text-warning fs-3" icon={faGooglePlus} />
+
                     <FontAwesomeIcon className="btn text-primary fs-3 ms-2" icon={faFacebook} />
+
                     <FontAwesomeIcon className="btn text-Secondary  fs-3 ms-2" icon={faGithub} />
                 </div>
             </div>
