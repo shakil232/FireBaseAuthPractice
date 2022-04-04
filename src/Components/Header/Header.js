@@ -3,10 +3,11 @@ import NavBar from '../Share/NavBar/NavBar';
 
 const Header = () => {
     return (
-        <section className=' container text-center text-info'>
+        <section>
             <NavBar/>
-            <div className='mt-5'>
-                <h3 className=' text-center text-info'>Header are Coming..</h3>
+            <div className='mt-5 text-center'>
+                <h2 className='text-info'>welCome Fire-Auth Project</h2>
+                <h4 className="mt-3 text-danger">This Project only User Login and Logout Method Displaying.. </h4>
             </div>
         </section>
     );
