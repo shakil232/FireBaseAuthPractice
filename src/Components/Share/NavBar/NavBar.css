@@ -20,8 +20,3 @@
   background-color: red! important;
   font-size: 10px !important;
 }
-
-.login-btn :hover{
-  background-color: green! important;
-  color: white! important;
-}
