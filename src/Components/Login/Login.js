@@ -1,184 +1,167 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import NavBar from '../Share/NavBar/NavBar';
 import { Form } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub, faGooglePlus, faFacebook } from '@fortawesome/free-brands-svg-icons'
-import { initializeApp } from "firebase/app";
-import {
-    getAuth,
-    signInWithPopup,
-    GoogleAuthProvider,
-    GithubAuthProvider,
-    FacebookAuthProvider,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    updateProfile,
-} from "firebase/auth";
-import firebaseConfig from './firebase.config';
-import { userContext } from '../../App';
+import useAuth from "../../Hooks/useAuth"
 
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
 const Login = () => {
-    const [user, setUser] = useContext(userContext);
     const [newUser, setNewUser] = useState(false);
-    
+    const { user, setUser, googleSignIn, facebookSignIn, githubSignIn } = useAuth();
+    // Router-reDirect 
+    let navigate = useNavigate();
+    let location = useLocation();
+    let from = location.state?.from?.pathname || "/";
 
-    // ALL-Providers 
-    const googleProvider = new GoogleAuthProvider();
-    const githubProvider = new GithubAuthProvider();
-    const facebookProvider = new FacebookAuthProvider();
-
-    // Google-Sign-In 
+    // // Google-Sign-In 
     const handelGoogleSignIn = () => {
-        signInWithPopup(auth, googleProvider)
+        googleSignIn()
             .then(res => {
-                const { displayName, email, photoURL } = res.user;
+                const { displayName, email } = res.user;
                 const signInUser = {
                     isSignedIn: true,
                     name: displayName,
                     email: email,
                     success: true,
                     error: '',
-                    photoUrl: photoURL
                 }
                 setUser(signInUser);
+                navigate(from, { replace: true })
             })
             .catch(err => {
                 const newUserInfo = { ...user };
                 newUserInfo.success = false;
                 newUserInfo.error = err.message;
-                setUser(newUserInfo)
+                setUser(newUserInfo);
             });
     };
 
-
-    // Github-Sign-In 
-    const handelGithubSignIn = () => {
-        signInWithPopup(auth, githubProvider)
-            .then(res => {
-                const { displayName, email, photoURL } = res.user;
-                const signInUser = {
-                    isSignedIn: true,
-                    name: displayName,
-                    email: email,
-                    success: true,
-                    error: '',
-                    photoUrl: photoURL
-                }
-                setUser(signInUser);
-            })
-            .catch(err => {
-                const newUserInfo = { ...user };
-                newUserInfo.success = false;
-                newUserInfo.error = err.message;
-                setUser(newUserInfo)
-            });
-
-    };
-
-
-    // FaceBook-Sign-In 
+    // // Facebook-Sign-In 
     const handelFacebookSignIn = () => {
-        signInWithPopup(auth, facebookProvider)
+        facebookSignIn()
             .then(res => {
-                const { displayName, email, photoURL } = res.user;
+                const { displayName, email } = res.user;
                 const signInUser = {
                     isSignedIn: true,
                     name: displayName,
                     email: email,
                     success: true,
                     error: '',
-                    photoUrl: photoURL
                 }
                 setUser(signInUser);
+                navigate(from, { replace: true })
             })
             .catch(err => {
                 const newUserInfo = { ...user };
                 newUserInfo.success = false;
                 newUserInfo.error = err.message;
-                setUser(newUserInfo)
+                setUser(newUserInfo);
             });
     };
+
+    // // Github-Sign-In 
+    const handelGithubSignIn = () => {
+        githubSignIn()
+            .then(res => {
+                const { displayName, email } = res.user;
+                const signInUser = {
+                    isSignedIn: true,
+                    name: displayName,
+                    email: email,
+                    success: true,
+                    error: '',
+                }
+                setUser(signInUser);
+                navigate(from, { replace: true })
+            })
+            .catch(err => {
+                const newUserInfo = { ...user };
+                newUserInfo.success = false;
+                newUserInfo.error = err.message;
+                setUser(newUserInfo);
+            });
+
+    };
+
 
     // handel email and password valid 
     const handelBlur = e => {
-        let isFieldValid;
-        if (e.target.name === 'email') {
-            isFieldValid = /\S+@\S+\.\S+/.test(e.target.value);
-        }
-        if (e.target.name === 'password') {
-            const passwordLength = e.target.value.length >= 6;
-            const passwordValid = /\d{1}/.test(e.target.value);
-            isFieldValid = passwordLength && passwordValid;
-        }
-        if (isFieldValid) {
-            const newUserInfo = { ...user };
-            newUserInfo[e.target.name] = e.target.value;
-            setUser(newUserInfo)
-        }
+        // let isFieldValid;
+        // if (e.target.name === 'email') {
+        //     isFieldValid = /\S+@\S+\.\S+/.test(e.target.value);
+        // }
+        // if (e.target.name === 'password') {
+        //     const passwordLength = e.target.value.length >= 6;
+        //     const passwordValid = /\d{1}/.test(e.target.value);
+        //     isFieldValid = passwordLength && passwordValid;
+        // }
+        // if (isFieldValid) {
+        //     const newUserInfo = { ...user };
+        //     newUserInfo[e.target.name] = e.target.value;
+        //     setUser(newUserInfo)
+        // }
     };
 
     // From-OnSubmit-Area 
     const handelSubmit = e => {
-        if (newUser && user.email, user.password) {
-            createUserWithEmailAndPassword(auth, user.email, user.password )
-            .then(res => {
-                    const newUserInfo = { ...user };
-                    newUserInfo.success = true;
-                    newUserInfo.error = '';
-                    UserInfoUpdate(user.name)
-                    setUser(newUserInfo);
-                })
-                .catch(err => {
-                    const newUserInfo = { ...user };
-                    newUserInfo.success = false;;
-                    newUserInfo.error = err.message;
-                    setUser(newUserInfo)
-                });
-        };
+        // if (newUser && user.email, user.password) {
+        //     createUserWithEmailAndPassword(auth, user.email, user.password)
+        //         .then(res => {
+        //             const newUserInfo = { ...user };
+        //             newUserInfo.success = true;
+        //             newUserInfo.error = '';
+        //             UserInfoUpdate(user.name)
+        //             setUser(newUserInfo);
+        //         })
+        //         .catch(err => {
+        //             const newUserInfo = { ...user };
+        //             newUserInfo.success = false;;
+        //             newUserInfo.error = err.message;
+        //             setUser(newUserInfo)
+        //         });
+        // };
 
-        if (!newUser && user.email, user.password) {
-            signInWithEmailAndPassword(auth, user.email, user.password)
-                .then(res => {
-                    const newUserInfo = { ...user };
-                    newUserInfo.success = true;
-                    newUserInfo.error = '';
-                    setUser(newUserInfo);
-                    console.log('signIn user', res.user)
-                })
-                .catch(err => {
-                    const newUserInfo = { ...user };
-                    newUserInfo.success = false;;
-                    newUserInfo.error = err.message;
-                    setUser(newUserInfo)
-                });
-        };
+        // if (!newUser && user.email, user.password) {
+        //     signInWithEmailAndPassword(auth, user.email, user.password)
+        //         .then(res => {
+        //             const newUserInfo = { ...user };
+        //             newUserInfo.success = true;
+        //             newUserInfo.error = '';
+        //             setUser(newUserInfo);
+        //             console.log('signIn user', res.user)
+        //         })
+        //         .catch(err => {
+        //             const newUserInfo = { ...user };
+        //             newUserInfo.success = false;;
+        //             newUserInfo.error = err.message;
+        //             setUser(newUserInfo)
+        //         });
+        // };
         e.preventDefault();
     };
 
     // Update-UserInfo-Area 
-    const UserInfoUpdate = (Name) => {
-        updateProfile(auth.currentUser, {
-            displayName: Name,
-        })
-            .then(() => {
-                // Profile updated!
-                // ...
-            })
-            .catch((error) => {
-                // An error occurred
-                // ...
-            });
-    };
+    // const UserInfoUpdate = (Name) => {
+    //     updateProfile(auth.currentUser, {
+    //         displayName: Name,
+    //     })
+    //         .then(() => {
+    //             // Profile updated!
+    //             // ...
+    //         })
+    //         .catch((error) => {
+    //             // An error occurred
+    //             // ...
+    //         });
+    // };
 
     return (
         <section className=' mb-5 pb-5'>
             <NavBar />
 
+            {/* handel-error  */}
             <div className=" mt-3 text-center ">
                 <h2 className="text-danger">{user.error}</h2>
                 {

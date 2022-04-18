@@ -1,33 +1,36 @@
-import React, { useContext } from 'react';
+// import React, { useContext } from 'react';
 import './NavBar.css';
 import { Container, Nav, Navbar } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import { userContext } from '../../../App';
-import { getAuth, signOut } from "firebase/auth";
+import {Link, NavLink } from 'react-router-dom';
+// import { userContext } from '../../../App';
+// import { getAuth, signOut } from "firebase/auth";
+import useAuth from "../../../Hooks/useAuth"
+
 
 const NavBar = () => {
-    const [user, setUser] = useContext(userContext);
-    const auth = getAuth();
+    // const [user, setUser] = useContext(userContext);
+    // const auth = getAuth();
+    const {user,logOut} = useAuth();
 
     // LogOut-Area 
-    const handelLogOut = () => {
-        signOut(auth)
-            .then(res => {
-                const signInUser = {
-                    isSignedIn: false,
-                    name: '',
-                    email: '',
-                    photoUrl: ''
-                }
-                setUser(signInUser);
-            })
-            .catch(err => {
-                const newUserInfo = { ...user };
-                newUserInfo.success = false;
-                newUserInfo.error = err.message;
-                setUser(newUserInfo)
-            });
-    }
+    // const handelLogOut = () => {
+    //     signOut(auth)
+    //         .then(res => {
+    //             const signInUser = {
+    //                 isSignedIn: false,
+    //                 name: '',
+    //                 email: '',
+    //                 photoUrl: ''
+    //             }
+    //             setUser(signInUser);
+    //         })
+    //         .catch(err => {
+    //             const newUserInfo = { ...user };
+    //             newUserInfo.success = false;
+    //             newUserInfo.error = err.message;
+    //             setUser(newUserInfo)
+    //         });
+    // }
 
     return (
 
@@ -37,14 +40,14 @@ const NavBar = () => {
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="ms-auto">
-                        <Link className="me-5 nav-menu " to="/home">Home</Link>
-                        <Link className="me-5 nav-menu " to="/about">About</Link>
-                        <Link className="me-5 nav-menu " to="/contact">Contact</Link>
+                        <NavLink  className="me-5 nav-menu " to="/home">Home</NavLink>
+                        <NavLink  className="me-5 nav-menu " to="/review">OrderReview</NavLink>
+                        <NavLink  className="me-5 nav-menu " to="/dashboard">Dashboard</NavLink>
                         {
-                            user.isSignedIn && <h4 className="text-warning fs-5">{user.name}</h4>
+                            user?.name && <h4 className="text-warning fs-5">{user.name}</h4>
                         }
                         {
-                            user.isSignedIn ? <Link onClick={handelLogOut} className=" btn btn-danger border-0 rounded-3 ms-5" to="/">LogOut</Link>
+                            user?.name ? <Link onClick={()=>logOut({})} className=" btn btn-danger border-0 rounded-3 ms-5" to="/">LogOut</Link>
 
                                 : <Link className=" btn btn-warning border-0 rounded-3" to="/login">Login</Link>
                         }
