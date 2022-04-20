@@ -8,8 +8,17 @@ import useAuth from "../../Hooks/useAuth"
 
 
 const Login = () => {
+    // all-state 
     const [newUser, setNewUser] = useState(false);
-    const { user, setUser, googleSignIn, facebookSignIn, githubSignIn } = useAuth();
+  
+    // auth-context 
+    const { user,
+        setUser,
+        googleSignIn,
+        facebookSignIn,
+        githubSignIn,
+        createWithEmailAndPassword,
+        signInEmailAndPassword } = useAuth();
     // Router-reDirect 
     let navigate = useNavigate();
     let location = useLocation();
@@ -19,22 +28,11 @@ const Login = () => {
     const handelGoogleSignIn = () => {
         googleSignIn()
             .then(res => {
-                const { displayName, email } = res.user;
-                const signInUser = {
-                    isSignedIn: true,
-                    name: displayName,
-                    email: email,
-                    success: true,
-                    error: '',
-                }
-                setUser(signInUser);
+                setUser(res);
                 navigate(from, { replace: true })
             })
             .catch(err => {
-                const newUserInfo = { ...user };
-                newUserInfo.success = false;
-                newUserInfo.error = err.message;
-                setUser(newUserInfo);
+                setUser(err);
             });
     };
 
@@ -42,22 +40,11 @@ const Login = () => {
     const handelFacebookSignIn = () => {
         facebookSignIn()
             .then(res => {
-                const { displayName, email } = res.user;
-                const signInUser = {
-                    isSignedIn: true,
-                    name: displayName,
-                    email: email,
-                    success: true,
-                    error: '',
-                }
-                setUser(signInUser);
+                setUser(res);
                 navigate(from, { replace: true })
             })
             .catch(err => {
-                const newUserInfo = { ...user };
-                newUserInfo.success = false;
-                newUserInfo.error = err.message;
-                setUser(newUserInfo);
+                setUser(err);
             });
     };
 
@@ -65,22 +52,11 @@ const Login = () => {
     const handelGithubSignIn = () => {
         githubSignIn()
             .then(res => {
-                const { displayName, email } = res.user;
-                const signInUser = {
-                    isSignedIn: true,
-                    name: displayName,
-                    email: email,
-                    success: true,
-                    error: '',
-                }
-                setUser(signInUser);
+                setUser(res);
                 navigate(from, { replace: true })
             })
             .catch(err => {
-                const newUserInfo = { ...user };
-                newUserInfo.success = false;
-                newUserInfo.error = err.message;
-                setUser(newUserInfo);
+                setUser(err);
             });
 
     };
@@ -88,74 +64,55 @@ const Login = () => {
 
     // handel email and password valid 
     const handelBlur = e => {
-        // let isFieldValid;
-        // if (e.target.name === 'email') {
-        //     isFieldValid = /\S+@\S+\.\S+/.test(e.target.value);
-        // }
-        // if (e.target.name === 'password') {
-        //     const passwordLength = e.target.value.length >= 6;
-        //     const passwordValid = /\d{1}/.test(e.target.value);
-        //     isFieldValid = passwordLength && passwordValid;
-        // }
-        // if (isFieldValid) {
-        //     const newUserInfo = { ...user };
-        //     newUserInfo[e.target.name] = e.target.value;
-        //     setUser(newUserInfo)
-        // }
+        let isFieldValid;
+
+        if (e.target.name === 'name') {
+            isFieldValid = e.target.value;
+        }
+        if (e.target.name === 'email') {
+            isFieldValid = /\S+@\S+\.\S+/.test(e.target.value);
+        }
+        if (e.target.name === 'password') {
+            const passwordLength = e.target.value.length >= 6;
+            const passwordValid = /\d{1}/.test(e.target.value);
+            isFieldValid = passwordLength && passwordValid;
+        }
+        if (isFieldValid) {
+            const newUserInfo = { ...user };
+            newUserInfo[e.target.name] = e.target.value;
+            setUser(newUserInfo)
+        }
     };
 
     // From-OnSubmit-Area 
     const handelSubmit = e => {
-        // if (newUser && user.email, user.password) {
-        //     createUserWithEmailAndPassword(auth, user.email, user.password)
-        //         .then(res => {
-        //             const newUserInfo = { ...user };
-        //             newUserInfo.success = true;
-        //             newUserInfo.error = '';
-        //             UserInfoUpdate(user.name)
-        //             setUser(newUserInfo);
-        //         })
-        //         .catch(err => {
-        //             const newUserInfo = { ...user };
-        //             newUserInfo.success = false;;
-        //             newUserInfo.error = err.message;
-        //             setUser(newUserInfo)
-        //         });
-        // };
-
-        // if (!newUser && user.email, user.password) {
-        //     signInWithEmailAndPassword(auth, user.email, user.password)
-        //         .then(res => {
-        //             const newUserInfo = { ...user };
-        //             newUserInfo.success = true;
-        //             newUserInfo.error = '';
-        //             setUser(newUserInfo);
-        //             console.log('signIn user', res.user)
-        //         })
-        //         .catch(err => {
-        //             const newUserInfo = { ...user };
-        //             newUserInfo.success = false;;
-        //             newUserInfo.error = err.message;
-        //             setUser(newUserInfo)
-        //         });
-        // };
         e.preventDefault();
+
+        if (newUser && user.name && user.email && user.password) {
+            createWithEmailAndPassword(user.name, user.email, user.password)
+                .then(res => {
+                    setUser(res);
+                    navigate(from, { replace: true })
+                })
+                .catch(err => {
+                    setUser(err);
+                });
+        };
+
+        if (!newUser && user.email && user.password) {
+            signInEmailAndPassword(user.email, user.password)
+                .then(res => {
+                    setUser(res);
+                    navigate(from, { replace: true })
+                })
+                .catch(err => {
+                    setUser(err);
+                });
+        };
+
     };
 
-    // Update-UserInfo-Area 
-    // const UserInfoUpdate = (Name) => {
-    //     updateProfile(auth.currentUser, {
-    //         displayName: Name,
-    //     })
-    //         .then(() => {
-    //             // Profile updated!
-    //             // ...
-    //         })
-    //         .catch((error) => {
-    //             // An error occurred
-    //             // ...
-    //         });
-    // };
+
 
     return (
         <section className=' mb-5 pb-5'>
@@ -177,17 +134,17 @@ const Login = () => {
                             <h4 className="text-primary text-center">Create an Account</h4>
                             <Form onSubmit={handelSubmit} >
                                 <Form.Group controlId="exampleForm.ControlInput1">
-                                    <label htmlFor="Name"></label>
+                                    <label htmlFor="name">Name</label>
                                     <input onBlur={handelBlur} className="form-control" type="text" name="name" placeholder="Your Name" required />
                                 </Form.Group>
 
                                 <Form.Group controlId="exampleForm.ControlInput1">
-                                    <label htmlFor="Email Address"></label>
+                                    <label htmlFor="email">Email Address</label>
                                     <input onBlur={handelBlur} className="form-control" type="email" name="email" placeholder="Your Email" required />
                                 </Form.Group>
 
                                 <Form.Group controlId="exampleForm.ControlTextarea1">
-                                    <label htmlFor="Password"></label>
+                                    <label htmlFor="password">Password</label>
                                     <input onBlur={handelBlur} className="form-control" type="password" name="password" placeholder="Your Password" required />
                                 </Form.Group>
 
